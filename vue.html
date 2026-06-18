@@ -28,6 +28,11 @@ function addTask(list) {
 
   list.newTask = ''
 }
+
+
+function removeTask(list, task) {
+  list.tasks = list.tasks.filter(t => t !== task)
+}
 </script>
 
 <template>
@@ -45,9 +50,13 @@ function addTask(list) {
     <ul>
       <li v-for="task in list.tasks" :key="task.id">
         <input type="checkbox" v-model="task.done" />
+
         <span :style="{ textDecoration: task.done ? 'line-through' : 'none' }">
           {{ task.text }}
         </span>
+
+        
+        <button @click="removeTask(list, task)">X</button>
       </li>
     </ul>
   </div>
