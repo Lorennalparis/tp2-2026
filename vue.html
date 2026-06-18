@@ -1,170 +1,54 @@
-<script>
-export default {
-  data() {
-    return {
-      newListTitle: "",
-      lists: []
-    };
-  },
+<script setup>
+import { ref } from 'vue'
 
-  methods: {
-    addList() {
-      if (!this.newListTitle.trim()) return;
+const newList = ref('')
+const lists = ref([])
 
-      this.lists.push({
-        id: Date.now(),
-        title: this.newListTitle,
-        newTask: "",
-        tasks: []
-      });
+function addList() {
+  if (newList.value === '') return
 
-      this.newListTitle = "";
-    },
+  lists.value.push({
+    id: Date.now(),
+    title: newList.value,
+    tasks: [],
+    newTask: ''
+  })
 
-    removeList(listId) {
-      this.lists = this.lists.filter(l => l.id !== listId);
-    },
+  newList.value = ''
+}
 
-    addTask(listId) {
-      const list = this.lists.find(l => l.id === listId);
-      if (!list || !list.newTask.trim()) return;
+function addTask(list) {
+  if (list.newTask === '') return
 
-      list.tasks.push({
-        id: Date.now(),
-        text: list.newTask,
-        done: false
-      });
+  list.tasks.push({
+    id: Date.now(),
+    text: list.newTask,
+    done: false
+  })
 
-      list.newTask = "";
-    },
-
-    removeTask(listId, taskId) {
-      const list = this.lists.find(l => l.id === listId);
-      list.tasks = list.tasks.filter(t => t.id !== taskId);
-    }
-  }
-};
+  list.newTask = ''
+}
 </script>
 
 <template>
-  <div class="container">
-    <h1>📋 Minhas Listas de Tarefas</h1>
+  <h1>Minhas Listas</h1>
 
-    <div class="new-list">
-      <input v-model="newListTitle" placeholder="Título da nova lista" />
-      <button @click="addList">Adicionar Lista</button>
-    </div>
+  <input v-model="newList" placeholder="Nova lista" />
+  <button @click="addList">Criar</button>
 
-    <div class="lists">
-      <div class="list" v-for="list in lists" :key="list.id">
+  <div v-for="list in lists" :key="list.id">
+    <h2>{{ list.title }}</h2>
 
-        <div class="list-header">
-          <h2>{{ list.title }}</h2>
-          <button @click="removeList(list.id)">🗑</button>
-        </div>
+    <input v-model="list.newTask" placeholder="Nova tarefa" />
+    <button @click="addTask(list)">Add</button>
 
-        <div class="task-input">
-          <input
-            v-model="list.newTask"
-            placeholder="Nova tarefa"
-            @keyup.enter="addTask(list.id)"
-          />
-          <button @click="addTask(list.id)">+</button>
-        </div>
-
-        <ul>
-          <li v-for="task in list.tasks" :key="task.id">
-            <label>
-              <input type="checkbox" v-model="task.done" />
-              <span :class="{ done: task.done }">
-                {{ task.text }}
-              </span>
-            </label>
-
-            <button @click="removeTask(list.id, task.id)">✖</button>
-          </li>
-        </ul>
-
-      </div>
-    </div>
+    <ul>
+      <li v-for="task in list.tasks" :key="task.id">
+        <input type="checkbox" v-model="task.done" />
+        <span :style="{ textDecoration: task.done ? 'line-through' : 'none' }">
+          {{ task.text }}
+        </span>
+      </li>
+    </ul>
   </div>
 </template>
-
-<style>
-body {
-  font-family: Arial;
-  background: #f2f4f8;
-}
-
-.container {
-  max-width: 900px;
-  margin: auto;
-  padding: 20px;
-}
-
-h1 {
-  text-align: center;
-}
-
-.new-list {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
-}
-
-input {
-  padding: 8px;
-  flex: 1;
-}
-
-button {
-  padding: 8px 12px;
-  cursor: pointer;
-}
-
-.lists {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 15px;
-}
-
-.list {
-  background: white;
-  padding: 15px;
-  border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-
-.list-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.task-input {
-  display: flex;
-  gap: 5px;
-  margin: 10px 0;
-}
-
-ul {
-  list-style: none;
-  padding: 0;
-}
-
-li {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 5px;
-}
-
-.done {
-  text-decoration: line-through;
-  color: gray;
-}
-
-button {
-  border: none;
-  border-radius: 5px;
-}
-</style>
